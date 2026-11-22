@@ -1,0 +1,58 @@
+# --- OS and editors ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# --- Secrets (never commit) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+secrets/
+
+# --- Java ---
+target/
+build/
+.gradle/
+*.class
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# --- Node ---
+node_modules/
+dist/
+.vite/
+coverage/
+
+# --- Data, recordings and model weights (never commit, see docs) ---
+# (anchored to the repo root, so source packages named "data" are not ignored)
+/data/
+/datasets/
+/recordings/
+/mlruns/
+*.onnx
+*.pt
+*.pth
+*.npy
+*.npz
+*.mp4
+*.avi
+*.mkv
+
+# --- Docs build ---
+site/

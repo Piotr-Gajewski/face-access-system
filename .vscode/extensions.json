@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "vscjava.vscode-java-pack",
+    "vmware.vscode-boot-dev-pack",
+    "ms-python.python",
+    "charliermarsh.ruff",
+    "tamasfe.even-better-toml",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-containers",
+    "redhat.vscode-yaml",
+    "bierner.markdown-mermaid",
+    "editorconfig.editorconfig",
+    "github.vscode-github-actions"
+  ]
+}
