@@ -1,0 +1,31 @@
+name: Thesis task
+description: Writing or preparing the thesis. The text itself lives in the private repository.
+labels: ["area: thesis", "type: feature"]
+body:
+  - type: markdown
+    attributes:
+      value: "This repository is public: describe the task, **do not paste thesis text, drafts or reviewer comments** here."
+  - type: input
+    id: section
+    attributes:
+      label: Chapter or section
+      placeholder: "2.3 Attacks on face recognition"
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      placeholder: First draft based on sources from the literature list, around 4 pages.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      value: |
+        - [ ] Draft committed in the thesis repository
+        - [ ] PDF builds in CI without undefined references or citations
+        - [ ]
+    validations:
+      required: true

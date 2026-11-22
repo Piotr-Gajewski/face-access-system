@@ -1,0 +1,29 @@
+name: Chore
+description: Configuration, tooling, dependencies, refactoring – no change in behaviour.
+labels: ["type: chore"]
+body:
+  - type: markdown
+    attributes:
+      value: "Add one **area** label after creating the issue (usually `area: infra` or `area: docs`)."
+  - type: textarea
+    id: what
+    attributes:
+      label: What and why
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Estimated size
+      options:
+        - "S – up to one day"
+        - "M – 2–3 days"
+        - "L – about a week (consider splitting)"
