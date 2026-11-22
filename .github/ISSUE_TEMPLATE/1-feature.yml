@@ -1,0 +1,39 @@
+name: Feature
+description: New functionality in the system.
+labels: ["type: feature"]
+body:
+  - type: markdown
+    attributes:
+      value: "Add one **area** label (backend, ml, device, web, infra, docs, research) after creating the issue."
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should be possible after this is done, and why it matters.
+      placeholder: As an administrator I can enrol a face template from the web panel, so that...
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Concrete, testable conditions. The ticket is Ready only when these are clear.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Technical notes
+      description: Approach, related decisions (Dnn), ADRs, links, out of scope.
+  - type: dropdown
+    id: size
+    attributes:
+      label: Estimated size
+      description: Copy to the Size field on the board.
+      options:
+        - "S – up to one day"
+        - "M – 2–3 days"
+        - "L – about a week (consider splitting)"

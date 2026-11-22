@@ -1,0 +1,34 @@
+name: Spike
+description: Time-boxed research or proof of concept that ends with a decision.
+labels: ["type: spike"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question to answer
+      placeholder: Can MiniFASNet be exported to ONNX and run on CPU under 100 ms per frame?
+    validations:
+      required: true
+  - type: input
+    id: timebox
+    attributes:
+      label: Time box
+      description: Stop when the time is up, even without a full answer.
+      placeholder: 1 day
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Expected outcome
+      value: |
+        - [ ] Answer written as a comment on this issue
+        - [ ] Decision recorded (ADR or decision table) if one was made
+        - [ ] Follow-up tickets created
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Starting points
+      description: Links, papers, repositories, ideas.

@@ -1,0 +1,39 @@
+name: Bug
+description: Something does not work as expected.
+labels: ["type: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Add one **area** label after creating the issue. **Never paste face images, recordings, tokens or secrets.** If the bug is a security vulnerability, use a private security advisory instead."
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happens
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1.
+        2.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error output
+      description: Redact personal data and secrets.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      placeholder: e.g. v0.3.0 or commit abc1234
