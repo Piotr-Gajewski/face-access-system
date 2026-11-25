@@ -8,7 +8,9 @@ description: Checks whether a GitHub issue is ready and proposes a plan before a
 Read-only until the owner approves the plan: no file changes, branches,
 comments or board changes. Do not run project scripts, not even in a check mode.
 
-Run commands one at a time from the repository root, without `cd`.
+One command per call, from the repository root: no `&&`, `;`, loops or `cd`.
+One part that needs permission blocks the whole chain, and `cd` persists, so
+`gh` and `git` may end up in another repository.
 
 ## 1. Read
 
