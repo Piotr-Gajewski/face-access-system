@@ -43,6 +43,10 @@ docs/                         system documentation (MkDocs)
 
 Prerequisites: Docker with Docker Compose, Java 25, Python 3.12 with [uv](https://docs.astral.sh/uv/), Node.js LTS. Run instructions will be added together with the first runnable service.
 
+## Contributing
+
+The plan and current work are on the public [project board](https://github.com/users/Piotr-Gajewski/projects/2). How work is done is described in [CONTRIBUTING.md](CONTRIBUTING.md); instructions for AI coding agents are in [AGENTS.md](AGENTS.md).
+
 ## Data and privacy
 
 This repository never contains biometric data, recordings, datasets, secrets or model weights with restricted licences. Models are listed in a model registry with their source and licence.
