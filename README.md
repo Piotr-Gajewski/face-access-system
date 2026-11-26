@@ -27,13 +27,16 @@ flowchart LR
 
 The study compares recognition variants (classical **K** vs neural **S**) combined with defence layers (none, passive liveness **P**, liveness + active challenge **W**), reporting APCER/BPCER (ISO/IEC 30107-3), FAR/FRR and the latency cost of each layer.
 
-## Repository layout (planned)
+## Repository layout
+
+The directories exist; most components have only a README so far.
 
 ```
 device/                       door reader and simulator
 web/                          admin panel
 services/access-service/      Java / Spring Boot
 services/biometric-service/   Python / FastAPI
+services/decision-agent/      optional decision stage (Python)
 deploy/                       Docker Compose, later Helm
 experiments/                  experiment definitions and analysis
 docs/                         system documentation (MkDocs)

@@ -48,6 +48,9 @@ coverage/
 *.onnx
 *.pt
 *.pth
+*.safetensors
+*.tflite
+*.task
 *.npy
 *.npz
 *.mp4

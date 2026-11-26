@@ -19,12 +19,13 @@ Use synthetic data in tests. If you are not sure whether something may be commit
 
 ## Layout
 
-Planned; a directory may not exist yet. Check before relying on it.
+The directories exist, but most contain only a `README.md` so far. Check what is there before relying on it.
 
 | Path | Content |
 |---|---|
 | `services/access-service/` | Java 25, Spring Boot 4: sessions, policies, decisions, audit log |
 | `services/biometric-service/` | Python 3.12, FastAPI, ONNX Runtime: detection, recognition, liveness |
+| `services/decision-agent/` | Python, optional: last decision stage on model results and metadata |
 | `web/` | React, TypeScript, Vite: admin panel |
 | `device/` | door reader and simulator |
 | `deploy/` | Docker Compose, later Helm |
