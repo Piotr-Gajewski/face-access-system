@@ -22,7 +22,7 @@ Any other argument is rejected before GitHub is called, so a mistyped `--check` 
 - Bash 4.4 or newer and GNU coreutils, as in Ubuntu
 - [`gh`](https://cli.github.com) logged in as the repository owner; tested with 2.105.0 (`gh auth status` must support `--no-refresh`)
 - `jq`; tested with 1.7
-- `shellcheck`, only to change the script: `shellcheck scripts/github-setup.sh` must report nothing
+- To change the script: `pre-commit run shellcheck --all-files` must pass. pre-commit brings its own pinned ShellCheck ([CONTRIBUTING.md](../CONTRIBUTING.md#local-checks)).
 
 ### Token scopes
 

@@ -1,0 +1,48 @@
+# Checks run before every commit and in CI. Setup: CONTRIBUTING.md, "Local checks".
+# Revisions are commit SHAs (a tag can be moved); update with `pre-commit autoupdate --freeze`.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        # Two trailing spaces are a line break in Markdown (see .editorconfig)
+        exclude: \.md$
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        # --enforce-all: check every file, not only newly added ones, so CI checks too
+        args: [--maxkb=500, --enforce-all]
+      - id: detect-private-key
+
+  - repo: https://github.com/gitleaks/gitleaks
+    # v8.30.1 is tagged off master, so `autoupdate` proposes v8.30.0; keep the newer release
+    rev: 83d9cd684c87d95d656c1458ef04895a7f1cbd8e  # frozen: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: a6564f5d57444e123433a5c9af733e3975c77229  # frozen: v0.11.0.1-1
+    hooks:
+      - id: shellcheck
+
+  - repo: local
+    hooks:
+      - id: forbid-media
+        name: Forbid images, audio and video outside allowed directories
+        description: Photos and recordings of faces must never be committed (AGENTS.md, "Never commit").
+        language: fail
+        entry: >-
+          Images, audio and video are only allowed in docs/assets/.
+          Never commit photos or recordings of people.
+          To allow another directory, extend the exclude pattern of this hook in .pre-commit-config.yaml.
+          Rejected files:
+        files: >-
+          (?ix)\.(
+            png|jpe?g|jfif|gif|bmp|tiff?|webp|avif|heic|heif|svg|ico|psd|p[bgpn]m|
+            dng|raw|cr2|cr3|nef|arw|orf|rw2|
+            wav|mp3|flac|ogg|oga|opus|m4a|aac|wma|aiff?|
+            mp4|m4v|mov|avi|mkv|webm|wmv|flv|3gp|mpe?g|h26[45]|y4m
+          )$
+        exclude: ^docs/assets/
