@@ -30,6 +30,7 @@ Planned; a directory may not exist yet. Check before relying on it.
 | `deploy/` | Docker Compose, later Helm |
 | `experiments/` | experiment definitions and analysis |
 | `docs/` | system documentation |
+| `scripts/` | repository maintenance, e.g. GitHub configuration ([README](scripts/README.md)) |
 
 Access decisions are made only on the server. The door reader is a thin client and is not trusted.
 
@@ -37,7 +38,12 @@ Access decisions are made only on the server. The door reader is a thin client a
 
 There is no application code yet, so there is nothing to build or test.
 
-When you add a component, replace this paragraph with its commands in the same pull request, and list only commands you have run successfully. Commands for one component go into an `AGENTS.md` in its directory, next to a `CLAUDE.md` that imports it.
+Scripts:
+
+- `shellcheck scripts/github-setup.sh`
+- `bash scripts/github-setup.sh --check` verifies the GitHub configuration and changes nothing. Never run it without `--check` unless the owner asks: it changes live GitHub settings.
+
+When you add a component, replace the first paragraph of this section with its commands in the same pull request, and list only commands you have run successfully. Commands for one component go into an `AGENTS.md` in its directory, next to a `CLAUDE.md` that imports it.
 
 - Java: use the project wrapper (`./mvnw` or `./gradlew`), never a globally installed Maven or Gradle.
 - Python: use `uv` (`uv sync`, `uv run`, `uv add`), never `pip install`.
