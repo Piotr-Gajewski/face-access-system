@@ -37,6 +37,7 @@ services/biometric-service/   Python / FastAPI
 deploy/                       Docker Compose, later Helm
 experiments/                  experiment definitions and analysis
 docs/                         system documentation (MkDocs)
+scripts/                      repository maintenance (GitHub configuration)
 ```
 
 ## Getting started
