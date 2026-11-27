@@ -36,18 +36,22 @@ The first run downloads the hook tools into `~/.cache/pre-commit` and takes a fe
 | Check | What it does |
 |---|---|
 | Whitespace, end of file | Removes trailing whitespace (not in Markdown, where it is a line break) and adds a final newline. These hooks fix the files and stop the commit: review the change, `git add` it and commit again. |
-| YAML, JSON | Rejects files that do not parse. |
+| YAML, JSON, TOML | Rejects files that do not parse. |
 | Merge conflict markers | Rejects leftover `<<<<<<<` lines. |
+| Case conflicts | Rejects file names that differ only in case, which break checkouts on Windows and macOS. |
+| Shebangs | Rejects executable files without a `#!` line, and scripts with a `#!` line that are not executable. |
 | Large files | Rejects files over 500 KB, such as datasets or model weights. |
 | Private keys, gitleaks | Reject private keys, tokens, passwords and other secrets. |
 | ShellCheck | Lints shell scripts. |
+| nbstripout | Removes cell outputs from Jupyter notebooks, because they can embed images as base64. Like the whitespace hooks, it fixes the file and stops the commit. |
 | Forbid media | Rejects images, audio and video outside `docs/assets/`, because photos and recordings of faces must never be committed. |
+| Forbid arrays and models | Rejects array, pickle and model files (`.npy`, `.pkl`, `.h5`, `.onnx`, `.pt`, `.safetensors` and others) everywhere, because they can hold face embeddings. `.gitignore` alone is not enough: `git add -f` bypasses it. |
 
 - Never skip the hooks with `git commit --no-verify`. CI runs the same checks, so a skipped failure comes back in the pull request.
 - If gitleaks flags something that is not a secret, such as a documented example, add `gitleaks:allow` as a comment on that line and explain it in the pull request. Do not disable the hook.
 - If a real secret was committed, revoke it first. Deleting it in a later commit does not remove it from the history.
 - To allow media in another directory, extend the `exclude` pattern of the `forbid-media` hook and say why in the pull request. Generate test images in the test code instead of committing them.
-- Update the hooks with `pre-commit autoupdate --freeze`, which pins each one to a commit SHA, in a pull request of its own.
+- Update the hooks with `pre-commit autoupdate --freeze`, in a pull request of its own. Check each new `rev` against the release: for an annotated tag it pins the tag object instead of the commit, and it ignores tags that are not on the default branch.
 
 ## Commits
 
