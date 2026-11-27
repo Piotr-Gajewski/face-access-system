@@ -39,9 +39,9 @@ Access decisions are made only on the server. The door reader is a thin client a
 
 There is no application code yet, so there is nothing to build or test.
 
-Scripts:
+Checks and scripts:
 
-- `shellcheck scripts/github-setup.sh`
+- `pre-commit run --all-files` runs all checks, including ShellCheck on shell scripts ([CONTRIBUTING.md](CONTRIBUTING.md#local-checks)). Never commit with `--no-verify`.
 - `bash scripts/github-setup.sh --check` verifies the GitHub configuration and changes nothing. Never run it without `--check` unless the owner asks: it changes live GitHub settings.
 
 When you add a component, replace the first paragraph of this section with its commands in the same pull request, and list only commands you have run successfully. Commands for one component go into an `AGENTS.md` in its directory, next to a `CLAUDE.md` that imports it.

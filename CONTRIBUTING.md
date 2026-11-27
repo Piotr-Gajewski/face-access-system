@@ -19,6 +19,36 @@ One ticket = one branch = one pull request. Nothing is pushed directly to `main`
 
 A pull request contains only what its ticket asks for. Anything else becomes a new issue.
 
+## Local checks
+
+[pre-commit](https://pre-commit.com/) runs checks on the staged files before every commit. If a check fails, the commit is not created. The hooks and their pinned versions are in [`.pre-commit-config.yaml`](.pre-commit-config.yaml).
+
+Set it up once per clone:
+
+```sh
+uv tool install pre-commit   # once per machine
+pre-commit install           # once per clone: run the hooks on every git commit
+pre-commit run --all-files   # check the whole repository
+```
+
+The first run downloads the hook tools into `~/.cache/pre-commit` and takes a few minutes. Nothing is installed system-wide.
+
+| Check | What it does |
+|---|---|
+| Whitespace, end of file | Removes trailing whitespace (not in Markdown, where it is a line break) and adds a final newline. These hooks fix the files and stop the commit: review the change, `git add` it and commit again. |
+| YAML, JSON | Rejects files that do not parse. |
+| Merge conflict markers | Rejects leftover `<<<<<<<` lines. |
+| Large files | Rejects files over 500 KB, such as datasets or model weights. |
+| Private keys, gitleaks | Reject private keys, tokens, passwords and other secrets. |
+| ShellCheck | Lints shell scripts. |
+| Forbid media | Rejects images, audio and video outside `docs/assets/`, because photos and recordings of faces must never be committed. |
+
+- Never skip the hooks with `git commit --no-verify`. CI runs the same checks, so a skipped failure comes back in the pull request.
+- If gitleaks flags something that is not a secret, such as a documented example, add `gitleaks:allow` as a comment on that line and explain it in the pull request. Do not disable the hook.
+- If a real secret was committed, revoke it first. Deleting it in a later commit does not remove it from the history.
+- To allow media in another directory, extend the `exclude` pattern of the `forbid-media` hook and say why in the pull request. Generate test images in the test code instead of committing them.
+- Update the hooks with `pre-commit autoupdate --freeze`, which pins each one to a commit SHA, in a pull request of its own.
+
 ## Commits
 
 Commits and pull request titles follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`. The scope is optional.
