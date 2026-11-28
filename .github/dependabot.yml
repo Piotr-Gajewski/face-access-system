@@ -1,0 +1,31 @@
+# Version updates for the SHA-pinned GitHub Actions and pre-commit hooks.
+# Each ecosystem gets one grouped pull request a week. How to review it: CONTRIBUTING.md, "Dependency updates".
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    # A new release waits a week before it is proposed, so a hijacked release has time to be found
+    # and pulled (see the Trivy supply chain attack in March 2026).
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    groups:
+      pre-commit:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
