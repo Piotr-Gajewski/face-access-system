@@ -2,7 +2,7 @@
 
 ## github-setup.sh
 
-Describes the GitHub configuration of this repository as code: repository settings, the `main` ruleset, labels, milestones and the [project board](https://github.com/users/Piotr-Gajewski/projects/2). The target state is at the top of the script; change it there, in a pull request, not in the GitHub interface.
+Describes the GitHub configuration of this repository as code: repository settings, GitHub Actions permissions, the `main` ruleset with its required CI checks, labels, milestones and the [project board](https://github.com/users/Piotr-Gajewski/projects/2). The target state is at the top of the script; change it there, in a pull request, not in the GitHub interface.
 
 | Command | Effect |
 |---|---|
@@ -61,4 +61,10 @@ If the board cannot be read during a run, the script stops instead of going on, 
 
 Changing the board can switch its workflows off without a message. The script reads the state of every workflow before the first change and again at the end, and reports each one that was switched off or disappeared. Turn it on again by hand.
 
-A required CI check (`REQUIRED_CHECKS`) is written only when the ruleset is created. In an existing ruleset the script reports the difference; fix it in Settings → Rules.
+### Required CI checks
+
+`REQUIRED_CHECKS` lists the jobs that must pass before a pull request can be merged. It holds only `ci`, the job that summarises all others ([CONTRIBUTING.md](../CONTRIBUTING.md#continuous-integration)), so a new CI job needs no change here. Each check must be reported by the GitHub Actions app (`CHECKS_APP_ID`), so no other token can mark it as passed.
+
+The script writes the checks into a new ruleset and into the existing one. In the existing ruleset it replaces only the `required_status_checks` rule and sends all other rules back unchanged, so the result does not depend on whether the API merges the list of rules or replaces it.
+
+Add a job to `REQUIRED_CHECKS` only after it has run at least once in a pull request. A required check that has never reported blocks every pull request.

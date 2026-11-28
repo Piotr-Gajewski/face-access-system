@@ -79,10 +79,19 @@ Planning board for a master'\''s thesis project: a spoof-resistant face recognit
 - **Labels:** one `area:` and one `type:` per ticket; milestones are project phases with a gate.
 - **Rules in full:** [CONTRIBUTING.md](https://github.com/Piotr-Gajewski/face-access-system/blob/main/CONTRIBUTING.md), with the [Definition of Done](https://github.com/Piotr-Gajewski/face-access-system/blob/main/CONTRIBUTING.md#definition-of-done).'
 
+# GitHub Actions: actions must be pinned to a full commit SHA; the workflow token is read-only
+# by default and cannot approve pull requests (a workflow asks for more in its `permissions`).
+ACTIONS_ALLOWED="all"
+ACTIONS_SHA_PINNING=true
+WORKFLOW_TOKEN_PERMISSIONS="read"
+WORKFLOW_CAN_APPROVE_PRS=false
+
 # protection of the default branch (ruleset)
 RULESET_NAME="Protect main"
-# Required CI checks (job names). Empty until there is a CI workflow.
-REQUIRED_CHECKS=()
+# Required CI checks (job names). `ci` summarises all jobs of .github/workflows/ci.yml.
+REQUIRED_CHECKS=(ci)
+# The checks must come from this app (GitHub Actions), so no other token can report them as passed.
+CHECKS_APP_ID=15368
 
 # board workflows that must be enabled (names as shown by GitHub)
 REQUIRED_WORKFLOWS=("Auto-add to project" "Item added to project" "Pull request linked to issue" "Item closed" "Item reopened" "Pull request merged")
@@ -220,6 +229,10 @@ if apply; then
   gh api -X PUT "repos/$REPO/vulnerability-alerts" --silent
   gh api -X PUT "repos/$REPO/private-vulnerability-reporting" --silent
   jq -n '$ARGS.positional | {names:.}' --args "${TOPICS[@]}" | gh api -X PUT "repos/$REPO/topics" --input - >/dev/null
+  jq -n --arg a "$ACTIONS_ALLOWED" --argjson s "$ACTIONS_SHA_PINNING" '{enabled:true, allowed_actions:$a, sha_pinning_required:$s}' \
+    | gh api -X PUT "repos/$REPO/actions/permissions" --input - --silent
+  jq -n --arg p "$WORKFLOW_TOKEN_PERMISSIONS" --argjson a "$WORKFLOW_CAN_APPROVE_PRS" '{default_workflow_permissions:$p, can_approve_pull_request_reviews:$a}' \
+    | gh api -X PUT "repos/$REPO/actions/permissions/workflow" --input - --silent
 fi
 R=$(gh api "repos/$REPO")
 chk() { check_eq "$(jq -r "$1" <<<"$R")" "$2" "$3"; }
@@ -241,13 +254,27 @@ fi
 WANT_T=$(printf '%s\n' "${TOPICS[@]}" | sort | paste -sd',')
 GOT_T=$(gh api "repos/$REPO/topics" --jq '.names | sort | join(",")')
 check_eq "$GOT_T" "$WANT_T" "Repository topics (${#TOPICS[@]})"
+AP=$(gh api "repos/$REPO/actions/permissions")
+check_eq "$(jq -r '.enabled' <<<"$AP")" true "GitHub Actions enabled"
+check_eq "$(jq -r '.allowed_actions' <<<"$AP")" "$ACTIONS_ALLOWED" "Allowed actions: $ACTIONS_ALLOWED"
+check_eq "$(jq -r '.sha_pinning_required' <<<"$AP")" "$ACTIONS_SHA_PINNING" "Actions must be pinned to a full commit SHA: $ACTIONS_SHA_PINNING"
+WP=$(gh api "repos/$REPO/actions/permissions/workflow")
+check_eq "$(jq -r '.default_workflow_permissions' <<<"$WP")" "$WORKFLOW_TOKEN_PERMISSIONS" "Default workflow token: $WORKFLOW_TOKEN_PERMISSIONS"
+check_eq "$(jq -r '.can_approve_pull_request_reviews' <<<"$WP")" "$WORKFLOW_CAN_APPROVE_PRS" "GitHub Actions can approve pull requests: $WORKFLOW_CAN_APPROVE_PRS"
 
 # ----------------------------------------------------------------------
 step "1b. Protection of main (ruleset)"
+CHECKS_JSON=$(printf '%s\n' "${REQUIRED_CHECKS[@]}" | jq -R --argjson app "$CHECKS_APP_ID" 'select(length>0) | {context:., integration_id:$app}' | jq -s .)
+CHECKS_RULE=$(jq -c '[if length>0 then {type:"required_status_checks", parameters:{
+    strict_required_status_checks_policy:false, required_status_checks:.}} else empty end]' <<<"$CHECKS_JSON")
+# prints the required checks of a ruleset (or of the target state) as "name (app ID)", sorted
+checks_of() {
+  jq -r '[.[] | "\(.context) (app \(.integration_id // "any"))"] | sort | join(", ")'
+}
+WANT_CHECKS=$(checks_of <<<"$CHECKS_JSON")
 RS_ID=$(gh api "repos/$REPO/rulesets" --jq ".[] | select(.name==\"$RULESET_NAME\") | .id" 2>/dev/null | head -1)
 if [[ -z "$RS_ID" ]] && apply; then
-  CHECKS_JSON=$(printf '%s\n' "${REQUIRED_CHECKS[@]}" | jq -R 'select(length>0) | {context:.}' | jq -s .)
-  jq -n --arg n "$RULESET_NAME" --argjson checks "$CHECKS_JSON" '{
+  jq -n --arg n "$RULESET_NAME" --argjson checks "$CHECKS_RULE" '{
     name:$n, target:"branch", enforcement:"active", bypass_actors:[],
     conditions:{ref_name:{include:["~DEFAULT_BRANCH"], exclude:[]}},
     rules:([
@@ -257,8 +284,7 @@ if [[ -z "$RS_ID" ]] && apply; then
         required_approving_review_count:0, dismiss_stale_reviews_on_push:false,
         require_code_owner_review:false, require_last_push_approval:false,
         required_review_thread_resolution:true, allowed_merge_methods:["squash"]}}
-    ] + (if ($checks|length)>0 then [{type:"required_status_checks", parameters:{
-        strict_required_status_checks_policy:false, required_status_checks:$checks}}] else [] end))
+    ] + $checks)
   }' | gh api -X POST "repos/$REPO/rulesets" --input - >/dev/null && echo "  (ruleset \"$RULESET_NAME\" created)"
   RS_ID=$(gh api "repos/$REPO/rulesets" --jq ".[] | select(.name==\"$RULESET_NAME\") | .id" | head -1)
 fi
@@ -266,6 +292,15 @@ if [[ -z "$RS_ID" ]]; then
   bad "Ruleset \"$RULESET_NAME\" does not exist"
 else
   RS=$(gh api "repos/$REPO/rulesets/$RS_ID")
+  got_checks() { jq '[.rules[] | select(.type=="required_status_checks") | .parameters.required_status_checks[]]' <<<"$RS" | checks_of; }
+  # An existing ruleset gets the required checks of the target state. Only that rule is replaced;
+  # the PUT sends all other rules back unchanged, whether the API merges the list or replaces it.
+  if apply && [[ "$(got_checks)" != "$WANT_CHECKS" ]]; then
+    jq --argjson checks "$CHECKS_RULE" '{name, target, enforcement, bypass_actors, conditions,
+      rules: ([.rules[] | select(.type!="required_status_checks")] + $checks)}' <<<"$RS" \
+      | gh api -X PUT "repos/$REPO/rulesets/$RS_ID" --input - >/dev/null && echo "  (required CI checks updated)"
+    RS=$(gh api "repos/$REPO/rulesets/$RS_ID")
+  fi
   rs() { check_eq "$(jq -r "$1" <<<"$RS")" "$2" "$3"; }
   has() {
     if jq -e --arg t "$1" '.rules[] | select(.type==$t)' >/dev/null <<<"$RS"; then ok "$2"; else bad "$2 (rule missing)"; fi
@@ -280,12 +315,11 @@ else
   has pull_request "Changes only through pull requests"
   rs '[.rules[] | select(.type=="pull_request") | .parameters.required_review_thread_resolution][0]' true "Pull request conversations must be resolved"
   rs '[.rules[] | select(.type=="pull_request") | .parameters.allowed_merge_methods | join(",")][0]' squash "Allowed merge method: squash only"
-  WANT_CHECKS=$(printf '%s\n' "${REQUIRED_CHECKS[@]}" | sed '/^$/d' | sort | paste -sd',')
-  GOT_CHECKS=$(jq -r '[.rules[] | select(.type=="required_status_checks") | .parameters.required_status_checks[].context] | sort | join(",")' <<<"$RS")
+  GOT_CHECKS=$(got_checks)
   if [[ "$GOT_CHECKS" == "$WANT_CHECKS" ]]; then
-    ok "Required CI checks: ${WANT_CHECKS:-none (there is no CI yet)}"
+    ok "Required CI checks: ${WANT_CHECKS:-none}"
   else
-    bad "Required CI checks: expected ${WANT_CHECKS:-none}, found ${GOT_CHECKS:-none} - fix in Settings > Rules"
+    bad "Required CI checks: expected ${WANT_CHECKS:-none}, found ${GOT_CHECKS:-none} - run the script without --check"
   fi
 fi
 
