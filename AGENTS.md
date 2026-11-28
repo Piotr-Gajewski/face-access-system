@@ -41,7 +41,8 @@ There is no application code yet, so there is nothing to build or test.
 
 Checks and scripts:
 
-- `pre-commit run --all-files` runs all checks, including ShellCheck on shell scripts ([CONTRIBUTING.md](CONTRIBUTING.md#local-checks)). Never commit with `--no-verify`.
+- `pre-commit run --all-files` runs all checks, including ShellCheck on shell scripts and actionlint and zizmor on workflows ([CONTRIBUTING.md](CONTRIBUTING.md#local-checks)). Never commit with `--no-verify`. New files are checked only after `git add`.
+- CI runs the same hooks and a gitleaks scan of the whole history; the `ci` job is the only required check ([CONTRIBUTING.md](CONTRIBUTING.md#continuous-integration)). A new CI job goes into `needs` of `ci`. Pin every action to a full commit SHA with the version in a comment.
 - `bash scripts/github-setup.sh --check` verifies the GitHub configuration and changes nothing. Never run it without `--check` unless the owner asks: it changes live GitHub settings.
 
 When you add a component, replace the first paragraph of this section with its commands in the same pull request, and list only commands you have run successfully. Commands for one component go into an `AGENTS.md` in its directory, next to a `CLAUDE.md` that imports it.

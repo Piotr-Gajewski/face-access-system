@@ -31,6 +31,21 @@ repos:
     hooks:
       - id: shellcheck
 
+  - repo: https://github.com/rhysd/actionlint
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca  # frozen: v1.7.12
+    hooks:
+      # Syntax, expressions, job dependencies and the shell in `run:` steps of workflows
+      - id: actionlint
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: c7d31dc612dffdd4d3b2f2b88b9660d3ab057ee8  # frozen: v1.33.1
+    hooks:
+      # Security of workflows and dependabot.yml: unpinned actions, broad permissions,
+      # template injection, credentials left by checkout. --offline: same result locally and in CI,
+      # even if a GitHub token is in the environment. --no-progress is the hook's default argument.
+      - id: zizmor
+        args: [--offline, --no-progress]
+
   - repo: https://github.com/kynan/nbstripout
     # 0.9.2 is an annotated tag; `autoupdate --freeze` pins the tag object, this is its commit
     rev: 512fa4ac6e4674f3a748e7dd5a546c037ec39edf  # frozen: 0.9.2
