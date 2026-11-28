@@ -46,6 +46,10 @@ jobs:
       - name: Run pre-commit on all files
         run: uvx --python "$(cat .python-version)" pre-commit@4.7.0 run --all-files --show-diff-on-failure --color=always
 
+      # TEST ONLY (#9): a failing step to show that merging is blocked. Never merge this.
+      - name: Fail on purpose
+        run: exit 1
+
   gitleaks-history:
     # The pre-commit hook sees only staged changes. This scans every commit, including the
     # commits of the pull request, which GitHub keeps after a squash merge.
